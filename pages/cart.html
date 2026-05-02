@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Shopping Cart | Direct Bridge</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-bridge"></i></div>
+                <span>Direct</span><span>Bridge</span>
+            </a>
+            <div class="nav-actions">
+                <a href="cart.html" class="nav-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="cart-badge">0</span>
+                </a>
+                <div id="auth-buttons" class="auth-links">
+                    <a href="login.html" class="login-link">Log in</a>
+                    <a href="signup.html" class="btn-primary">Sign up</a>
+                </div>
+                <div id="user-menu" class="user-menu hidden">
+                    <button class="user-avatar" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="user-dropdown" class="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="name" id="user-name-display">User</div>
+                            <div class="email" id="user-email-display">user@example.com</div>
+                        </div>
+                        <a href="dashboard.html">Dashboard</a>
+                        <a href="#" onclick="handleLogout()" class="logout">Sign out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="cart-layout" id="cart-content"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">Direct<span>Bridge</span></div>
+                    <p class="footer-desc">Connecting you to quality products with seamless delivery.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Shop</h3>
+                    <a href="../index.html">All Products</a>
+                    <a href="../index.html">Electronics</a>
+                    <a href="../index.html">Fashion</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Support</h3>
+                    <a href="contact.html">Contact Us</a>
+                    <a href="shipping.html">Shipping</a>
+                    <a href="returns.html">Returns</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Company</h3>
+                    <a href="about.html">About Us</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Direct Bridge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Item added to cart</span>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function renderCart() {
+            const container = document.getElementById('cart-content');
+            
+            if (state.cart.length === 0) {
+                container.innerHTML = `
+                    <div class="empty-state fade-in">
+                        <div style="width:5rem;height:5rem;background:var(--ash-100);border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;">
+                            <i class="fas fa-shopping-basket" style="font-size:2rem;color:var(--ash-400);"></i>
+                        </div>
+                        <h2 style="font-size:1.5rem;margin-bottom:0.5rem;">Your cart is empty</h2>
+                        <p style="color:var(--ash-500);">Looks like you haven't added anything yet.</p>
+                        <a href="../index.html" class="btn-primary" style="display:inline-block;margin-top:1.5rem;padding:0.75rem 2rem;">Start Shopping</a>
+                    </div>
+                `;
+                return;
+            }
+            
+            const subtotal = state.cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            
+            container.innerHTML = `
+                <h1>Shopping Cart</h1>
+                <div class="cart-grid fade-in">
+                    <div class="cart-items">
+                        ${state.cart.map(item => `
+                            <div class="cart-item">
+                                <img src="${item.image}" alt="${item.name}" class="cart-item-img">
+                                <div class="cart-item-details">
+                                    <div class="cart-item-top">
+                                        <div>
+                                            <div class="cart-item-name" onclick="window.location.href='product.html?id=${item.id}'">${item.name}</div>
+                                            <div class="cart-item-cat">${item.category}</div>
+                                        </div>
+                                        <div class="cart-item-price">${formatPrice(item.price * item.qty)}</div>
+                                    </div>
+                                    <div class="cart-item-actions">
+                                        <div class="qty-control">
+                                            <button onclick="updateCartQty('${item.id}', -1)">-</button>
+                                            <span>${item.qty}</span>
+                                            <button onclick="updateCartQty('${item.id}', 1)">+</button>
+                                        </div>
+                                        <button class="remove-btn" onclick="removeFromCart('${item.id}')">Remove</button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                    <div class="order-summary">
+                        <h2>Order Summary</h2>
+                        <div class="summary-row">
+                            <span style="color:var(--ash-600);">Subtotal</span>
+                            <span>${formatPrice(subtotal)}</span>
+                        </div>
+                        <div class="summary-row total">
+                            <span>Order Total</span>
+                            <span>${formatPrice(subtotal)}</span>
+                        </div>
+                        <a href="checkout.html" class="btn-primary" style="display:block;text-align:center;margin-top:1rem;padding:1rem;">
+                            Proceed to Checkout
+                        </a>
+                    </div>
+                </div>
+            `;
+        }
+        
+        document.addEventListener('DOMContentLoaded', renderCart);
+    </script>
+</body>
+</html>

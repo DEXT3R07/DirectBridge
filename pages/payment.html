@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Payment | Direct Bridge</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Paystack V2 Inline JS -->
+    <script src="https://js.paystack.co/v2/inline.js"></script>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-bridge"></i></div>
+                <span>Direct</span><span>Bridge</span>
+            </a>
+            <div class="nav-actions">
+                <a href="cart.html" class="nav-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="cart-badge">0</span>
+                </a>
+                <div id="auth-buttons" class="auth-links">
+                    <a href="login.html" class="login-link">Log in</a>
+                    <a href="signup.html" class="btn-primary">Sign up</a>
+                </div>
+                <div id="user-menu" class="user-menu hidden">
+                    <button class="user-avatar" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="user-dropdown" class="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="name" id="user-name-display">User</div>
+                            <div class="email" id="user-email-display">user@example.com</div>
+                        </div>
+                        <a href="dashboard.html">Dashboard</a>
+                        <a href="#" onclick="handleLogout()" class="logout">Sign out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="payment-page" id="payment-content"></div>
+    </main>
+
+    <!-- Footer -->
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">Direct<span>Bridge</span></div>
+                    <p class="footer-desc">Connecting you to quality products with seamless delivery.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Shop</h3>
+                    <a href="../index.html">All Products</a>
+                    <a href="../index.html">Electronics</a>
+                    <a href="../index.html">Fashion</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Support</h3>
+                    <a href="contact.html">Contact Us</a>
+                    <a href="shipping.html">Shipping</a>
+                    <a href="returns.html">Returns</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Company</h3>
+                    <a href="about.html">About Us</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Direct Bridge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Item added to cart</span>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        function renderPayment() {
+            const params = new URLSearchParams(window.location.search);
+            const orderId = params.get('order');
+            const order = state.orders.find(o => o.id === orderId);
+            
+            if (!order) {
+                window.location.href = 'dashboard.html';
+                return;
+            }
+            
+            const container = document.getElementById('payment-content');
+            container.innerHTML = `
+                <div class="payment-card fade-in">
+                    <div class="success-icon">
+                        <i class="fas fa-check"></i>
+                    </div>
+                    <h2>Order Confirmed!</h2>
+                    <p class="order-id">Order ID: <span>#${order.id}</span></p>
+                    <p style="color: var(--ash-500); margin-top: 0.5rem;">Amount: <strong>${formatPrice(order.total)}</strong></p>
+                    
+                    <div style="margin-top: 2rem; text-align: left;">
+                        <h3 style="margin-bottom: 1rem;">Choose Payment Method</h3>
+                        
+                        <!-- Paystack Online Payment -->
+                        <div style="background: var(--ash-50); padding: 1.5rem; border-radius: 1rem; margin-bottom: 1rem; border: 1px solid var(--ash-200);">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="width: 3rem; height: 3rem; background: #011b33; border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: white; font-weight: 800;">
+                                    PS
+                                </div>
+                                <div>
+                                    <div style="font-weight: 700;">Pay Online with Paystack</div>
+                                    <div style="font-size: 0.875rem; color: var(--ash-500);">Card, Bank Transfer, USSD</div>
+                                </div>
+                            </div>
+                            <button onclick="payWithPaystack('${order.id}')" class="btn-primary" style="width: 100%; padding: 1rem;">
+                                <i class="fas fa-credit-card" style="margin-right: 0.5rem;"></i> Pay ${formatPrice(order.total)} Now
+                            </button>
+                        </div>
+                        
+                        <!-- Manual Bank Transfer -->
+                        <div style="background: var(--ash-50); padding: 1.5rem; border-radius: 1rem; border: 1px solid var(--ash-200);">
+                            <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+                                <div style="width: 3rem; height: 3rem; background: var(--ash-200); border-radius: 0.5rem; display: flex; align-items: center; justify-content: center; color: var(--ash-700);">
+                                    <i class="fas fa-university"></i>
+                                </div>
+                                <div>
+                                    <div style="font-weight: 700;">Bank Transfer (Manual)</div>
+                                    <div style="font-size: 0.875rem; color: var(--ash-500);">Send payment and confirm via WhatsApp</div>
+                                </div>
+                            </div>
+                            
+                            <div class="payment-instructions" style="margin-top: 0;">
+                                <p style="font-size: 0.875rem; color: var(--ash-600); margin-bottom: 1rem;">
+                                    Please transfer <strong>${formatPrice(order.total)}</strong> to the account below:
+                                </p>
+                                <div class="bank-details">
+                                    <div class="bank-detail-box">
+                                        <div class="label">Bank Name</div>
+                                        <div class="value">First Bank of Nigeria</div>
+                                    </div>
+                                    <div class="bank-detail-box">
+                                        <div class="label">Account Number</div>
+                                        <div class="value" style="letter-spacing: 0.1em;">3045 6789 012</div>
+                                    </div>
+                                    <div class="bank-detail-box" style="grid-column: 1 / -1;">
+                                        <div class="label">Account Name</div>
+                                        <div class="value">Direct Bridge Ltd</div>
+                                    </div>
+                                </div>
+                                
+                                <div style="border-top: 1px solid var(--ash-200); padding-top: 1.5rem; text-align: center;">
+                                    <p style="font-size: 0.875rem; color: var(--ash-600); margin-bottom: 1rem;">
+                                        After payment, send receipt via WhatsApp
+                                    </p>
+                                    <a href="https://wa.me/2348000000000?text=Hello, I have made payment for Order #${order.id}. Amount: ${formatPrice(order.total)}. Name: ${order.shipping.name}" 
+                                       target="_blank" class="whatsapp-btn">
+                                        <i class="fab fa-whatsapp" style="font-size: 1.25rem;"></i>
+                                        Send Receipt on WhatsApp
+                                    </a>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div style="margin-top: 2rem;">
+                        <a href="dashboard.html" style="color: var(--ash-600); font-weight: 500;">Go to My Orders</a>
+                    </div>
+                </div>
+            `;
+        }
+        
+        document.addEventListener('DOMContentLoaded', renderPayment);
+    </script>
+</body>
+</html>

@@ -1,0 +1,109 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Returns & Refunds | Direct Bridge</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-bridge"></i></div>
+                <span>Direct</span><span>Bridge</span>
+            </a>
+            <div class="nav-actions">
+                <a href="cart.html" class="nav-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="cart-badge">0</span>
+                </a>
+                <div id="auth-buttons" class="auth-links">
+                    <a href="login.html" class="login-link">Log in</a>
+                    <a href="signup.html" class="btn-primary">Sign up</a>
+                </div>
+                <div id="user-menu" class="user-menu hidden">
+                    <button class="user-avatar" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="user-dropdown" class="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="name" id="user-name-display">User</div>
+                            <div class="email" id="user-email-display">user@example.com</div>
+                        </div>
+                        <a href="dashboard.html">Dashboard</a>
+                        <a href="#" onclick="handleLogout()" class="logout">Sign out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="info-page fade-in">
+            <h1>Returns & Refunds</h1>
+            <p>We want you to be completely satisfied with your purchase. If something isn't right, we're here to make it right.</p>
+            
+            <h2>Return Policy</h2>
+            <ul>
+                <li><strong>Timeframe:</strong> You can return items within 14 days of delivery.</li>
+                <li><strong>Condition:</strong> Items must be unused, in original packaging, with all tags attached.</li>
+                <li><strong>Exceptions:</strong> Underwear, swimwear, and personalized items cannot be returned for hygiene reasons.</li>
+                <li><strong>Damaged Items:</strong> If your item arrives damaged, please contact us within 48 hours with photos.</li>
+            </ul>
+            
+            <h2>How to Return</h2>
+            <ol>
+                <li>Log into your <a href="dashboard.html" style="color: var(--ash-900); font-weight: 600;">Dashboard</a> and select the order.</li>
+                <li>Click "Request Return" and fill out the form.</li>
+                <li>Our team will review and approve within 24 hours.</li>
+                <li>Ship the item back using our prepaid return label (for approved returns).</li>
+                <li>Receive your refund within 5-7 business days after we receive the item.</li>
+            </ol>
+            
+            <h2>Refund Methods</h2>
+            <p>Refunds are processed to your original payment method. For bank transfer payments, refunds will be sent to the account you provide during the return process.</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">Direct<span>Bridge</span></div>
+                    <p class="footer-desc">Connecting you to quality products with seamless delivery.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Shop</h3>
+                    <a href="../index.html">All Products</a>
+                    <a href="../index.html">Electronics</a>
+                    <a href="../index.html">Fashion</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Support</h3>
+                    <a href="contact.html">Contact Us</a>
+                    <a href="shipping.html">Shipping</a>
+                    <a href="returns.html">Returns</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Company</h3>
+                    <a href="about.html">About Us</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Direct Bridge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Success</span>
+    </div>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

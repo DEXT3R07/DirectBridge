@@ -1,0 +1,269 @@
+
+# Admin Dashboard - Order Management
+admin_html = """<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Panel | Direct Bridge</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-bridge"></i></div>
+                <span>Direct</span><span>Bridge</span>
+            </a>
+            <div class="nav-actions">
+                <span style="font-size: 0.875rem; color: var(--ash-500); font-weight: 500;">
+                    <i class="fas fa-shield-alt" style="margin-right: 0.25rem;"></i> Admin
+                </span>
+                <div id="user-menu" class="user-menu">
+                    <button class="user-avatar" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="user-dropdown" class="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="name" id="user-name-display">Admin</div>
+                            <div class="email" id="user-email-display">admin@directbridge.com</div>
+                        </div>
+                        <a href="../pages/dashboard.html">User Dashboard</a>
+                        <a href="#" onclick="handleLogout()" class="logout">Sign out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="dashboard" id="admin-content">
+            <div class="admin-header">
+                <h1>Admin Panel</h1>
+                <button onclick="showAddProductModal()" class="btn-primary">
+                    <i class="fas fa-plus" style="margin-right: 0.5rem;"></i> Add Product
+                </button>
+            </div>
+            
+            <div class="admin-tabs">
+                <button onclick="switchTab('orders')" id="tab-orders" class="active">Orders</button>
+                <button onclick="switchTab('products')" id="tab-products">Products</button>
+            </div>
+            
+            <!-- Orders View -->
+            <div id="view-orders">
+                <div class="stats-grid" style="margin-bottom: 2rem;">
+                    <div class="stat-card">
+                        <div class="stat-label">Total Orders</div>
+                        <div class="stat-value">${state.orders.length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Pending</div>
+                        <div class="stat-value" style="color: var(--warning);">${state.orders.filter(o => o.status === 'Pending').length}</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-label">Revenue</div>
+                        <div class="stat-value">${formatPrice(state.orders.filter(o => o.status !== 'Cancelled').reduce((s, o) => s + o.total, 0))}</div>
+                    </div>
+                </div>
+                <div class="table-container" id="orders-table"></div>
+            </div>
+            
+            <!-- Products View -->
+            <div id="view-products" class="hidden">
+                <div class="table-container" id="products-table"></div>
+            </div>
+        </div>
+    </main>
+
+    <!-- Add Product Modal -->
+    <div id="add-product-modal" class="modal-overlay">
+        <div class="modal">
+            <div class="modal-header">
+                <h3>Add New Product</h3>
+            </div>
+            <form id="add-product-form" onsubmit="handleAddProduct(event)">
+                <div class="modal-body">
+                    <div class="form-group">
+                        <label>Product Name *</label>
+                        <input type="text" id="new-prod-name" required>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+                        <div class="form-group">
+                            <label>Price (₦) *</label>
+                            <input type="number" id="new-prod-price" required min="1">
+                        </div>
+                        <div class="form-group">
+                            <label>Stock Qty *</label>
+                            <input type="number" id="new-prod-stock" required min="0">
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Category *</label>
+                        <input type="text" id="new-prod-cat" required placeholder="e.g. Electronics, Fashion">
+                    </div>
+                    <div class="form-group">
+                        <label>Image URL *</label>
+                        <input type="url" id="new-prod-img" required placeholder="https://...">
+                    </div>
+                    <div class="form-group">
+                        <label>Description *</label>
+                        <textarea id="new-prod-desc" rows="3" required></textarea>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn-outline" onclick="closeAddProductModal()">Cancel</button>
+                    <button type="submit" class="btn-primary">Add Product</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Success</span>
+    </div>
+
+    <script src="../js/main.js"></script>
+    <script>
+        // Admin guard
+        function checkAdmin() {
+            if (!state.user || !state.user.isAdmin) {
+                showToast('Admin access required', 'error');
+                window.location.href = '../pages/login.html';
+                return false;
+            }
+            return true;
+        }
+        
+        function switchTab(tab) {
+            document.getElementById('tab-orders').classList.toggle('active', tab === 'orders');
+            document.getElementById('tab-products').classList.toggle('active', tab === 'products');
+            document.getElementById('view-orders').classList.toggle('hidden', tab !== 'orders');
+            document.getElementById('view-products').classList.toggle('hidden', tab !== 'products');
+            
+            if (tab === 'products') renderAdminProducts();
+        }
+        
+        function renderAdminOrders() {
+            const table = document.getElementById('orders-table');
+            const orders = state.orders.sort((a, b) => b.date - a.date);
+            
+            table.innerHTML = orders.length === 0 ? 
+                '<div style="padding: 3rem; text-align: center; color: var(--ash-500);">No orders yet</div>' :
+                `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Order ID</th>
+                            <th>Customer</th>
+                            <th>Contact</th>
+                            <th>Items</th>
+                            <th>Total</th>
+                            <th>Status</th>
+                            <th>Date</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${orders.map(order => `
+                            <tr>
+                                <td style="font-weight: 600;">#${order.id}</td>
+                                <td>
+                                    <div style="font-weight: 600;">${order.shipping.name}</div>
+                                    <div style="font-size: 0.75rem; color: var(--ash-500);">${order.userEmail || order.userName}</div>
+                                </td>
+                                <td>
+                                    <div style="font-size: 0.875rem;">${order.shipping.phone}</div>
+                                    <div style="font-size: 0.75rem; color: var(--ash-500);">${order.shipping.address}, ${order.shipping.city}</div>
+                                </td>
+                                <td>${order.items.length} items</td>
+                                <td style="font-weight: 700;">${formatPrice(order.total)}</td>
+                                <td>
+                                    <select onchange="updateOrderStatus('${order.id}', this.value)" 
+                                        style="font-size: 0.75rem; padding: 0.25rem 0.5rem; border-radius: 0.375rem; border: 1px solid var(--ash-300); background: white;">
+                                        <option value="Pending" ${order.status === 'Pending' ? 'selected' : ''}>Pending</option>
+                                        <option value="Processing" ${order.status === 'Processing' ? 'selected' : ''}>Processing</option>
+                                        <option value="Shipped" ${order.status === 'Shipped' ? 'selected' : ''}>Shipped</option>
+                                        <option value="Completed" ${order.status === 'Completed' ? 'selected' : ''}>Completed</option>
+                                        <option value="Cancelled" ${order.status === 'Cancelled' ? 'selected' : ''}>Cancelled</option>
+                                    </select>
+                                </td>
+                                <td style="font-size: 0.75rem; color: var(--ash-500);">${new Date(order.date).toLocaleDateString()}</td>
+                                <td>
+                                    <button onclick="viewOrderDetails('${order.id}')" style="background: none; border: none; color: var(--ash-600); cursor: pointer; font-size: 0.875rem;">
+                                        <i class="fas fa-eye"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+                `;
+        }
+        
+        function renderAdminProducts() {
+            const table = document.getElementById('products-table');
+            table.innerHTML = `
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Product</th>
+                            <th>Category</th>
+                            <th>Price</th>
+                            <th>Stock</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        ${state.products.map(product => `
+                            <tr>
+                                <td>
+                                    <div style="display: flex; align-items: center; gap: 0.75rem;">
+                                        <img src="${product.image}" style="width: 2.5rem; height: 2.5rem; border-radius: 0.375rem; object-fit: cover;">
+                                        <span style="font-weight: 600;">${product.name}</span>
+                                    </div>
+                                </td>
+                                <td>${product.category}</td>
+                                <td style="font-weight: 600;">${formatPrice(product.price)}</td>
+                                <td>${product.stock}</td>
+                                <td>
+                                    <button onclick="deleteProduct('${product.id}')" class="btn-danger" style="padding: 0.375rem 0.75rem; font-size: 0.75rem;">
+                                        <i class="fas fa-trash"></i> Delete
+                                    </button>
+                                </td>
+                            </tr>
+                        `).join('')}
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        function viewOrderDetails(id) {
+            const order = state.orders.find(o => o.id === id);
+            if (!order) return;
+            
+            const itemsList = order.items.map(item => 
+                `- ${item.name} (Qty: ${item.qty}) - ${formatPrice(item.price * item.qty)}`
+            ).join('\\n');
+            
+            alert(`Order #${order.id}\\n\\nCustomer: ${order.shipping.name}\\nPhone: ${order.shipping.phone}\\nAddress: ${order.shipping.address}, ${order.shipping.city}, ${order.shipping.state}\\n\\nItems:\\n${itemsList}\\n\\nTotal: ${formatPrice(order.total)}\\nStatus: ${order.status}\\nDate: ${new Date(order.date).toLocaleString()}`);
+        }
+        
+        document.addEventListener('DOMContentLoaded', () => {
+            if (checkAdmin()) {
+                renderAdminOrders();
+            }
+        });
+    </script>
+</body>
+</html>
+"""
+
+with open("/mnt/agents/output/direct-bridge/admin/dashboard.html", "w") as f:
+    f.write(admin_html)
+
+print("✓ admin/dashboard.html created")

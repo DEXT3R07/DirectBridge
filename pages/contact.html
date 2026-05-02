@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Contact Us | Direct Bridge</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-bridge"></i></div>
+                <span>Direct</span><span>Bridge</span>
+            </a>
+            <div class="nav-actions">
+                <a href="cart.html" class="nav-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="cart-badge">0</span>
+                </a>
+                <div id="auth-buttons" class="auth-links">
+                    <a href="login.html" class="login-link">Log in</a>
+                    <a href="signup.html" class="btn-primary">Sign up</a>
+                </div>
+                <div id="user-menu" class="user-menu hidden">
+                    <button class="user-avatar" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="user-dropdown" class="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="name" id="user-name-display">User</div>
+                            <div class="email" id="user-email-display">user@example.com</div>
+                        </div>
+                        <a href="dashboard.html">Dashboard</a>
+                        <a href="#" onclick="handleLogout()" class="logout">Sign out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="info-page fade-in">
+            <h1>Contact Us</h1>
+            <p>We're here to help. Reach out to us through any of the channels below and we'll get back to you as soon as possible.</p>
+            
+            <div class="contact-grid">
+                <div class="contact-info-card">
+                    <i class="fas fa-envelope"></i>
+                    <h3>Email</h3>
+                    <p>support@directbridge.com</p>
+                </div>
+                <div class="contact-info-card">
+                    <i class="fas fa-phone"></i>
+                    <h3>Phone</h3>
+                    <p>+234 800 000 0000</p>
+                </div>
+                <div class="contact-info-card">
+                    <i class="fab fa-whatsapp"></i>
+                    <h3>WhatsApp</h3>
+                    <p>+234 800 000 0000</p>
+                </div>
+            </div>
+            
+            <div style="background: white; padding: 2rem; border-radius: 1rem; border: 1px solid var(--ash-200); margin-top: 2rem;">
+                <h2 style="margin-bottom: 1.5rem;">Send us a Message</h2>
+                <form onsubmit="event.preventDefault(); showToast('Message sent! We will reply shortly.'); this.reset();">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-bottom: 1rem;">
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Name</label>
+                            <input type="text" required>
+                        </div>
+                        <div class="form-group" style="margin-bottom: 0;">
+                            <label>Email</label>
+                            <input type="email" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label>Subject</label>
+                        <input type="text" required>
+                    </div>
+                    <div class="form-group">
+                        <label>Message</label>
+                        <textarea rows="5" required></textarea>
+                    </div>
+                    <button type="submit" class="btn-primary" style="padding: 0.875rem 2rem;">
+                        <i class="fas fa-paper-plane" style="margin-right: 0.5rem;"></i> Send Message
+                    </button>
+                </form>
+            </div>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">Direct<span>Bridge</span></div>
+                    <p class="footer-desc">Connecting you to quality products with seamless delivery.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Shop</h3>
+                    <a href="../index.html">All Products</a>
+                    <a href="../index.html">Electronics</a>
+                    <a href="../index.html">Fashion</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Support</h3>
+                    <a href="contact.html">Contact Us</a>
+                    <a href="shipping.html">Shipping</a>
+                    <a href="returns.html">Returns</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Company</h3>
+                    <a href="about.html">About Us</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Direct Bridge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Success</span>
+    </div>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>

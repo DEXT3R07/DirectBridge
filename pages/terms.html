@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Terms of Service | Direct Bridge</title>
+    <link rel="stylesheet" href="../css/styles.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body>
+    <nav class="navbar">
+        <div class="navbar-inner">
+            <a href="../index.html" class="logo">
+                <div class="logo-icon"><i class="fas fa-bridge"></i></div>
+                <span>Direct</span><span>Bridge</span>
+            </a>
+            <div class="nav-actions">
+                <a href="cart.html" class="nav-btn">
+                    <i class="fas fa-shopping-cart"></i>
+                    <span id="cart-count" class="cart-badge">0</span>
+                </a>
+                <div id="auth-buttons" class="auth-links">
+                    <a href="login.html" class="login-link">Log in</a>
+                    <a href="signup.html" class="btn-primary">Sign up</a>
+                </div>
+                <div id="user-menu" class="user-menu hidden">
+                    <button class="user-avatar" onclick="toggleUserMenu()">
+                        <i class="fas fa-user"></i>
+                    </button>
+                    <div id="user-dropdown" class="user-dropdown">
+                        <div class="user-dropdown-header">
+                            <div class="name" id="user-name-display">User</div>
+                            <div class="email" id="user-email-display">user@example.com</div>
+                        </div>
+                        <a href="dashboard.html">Dashboard</a>
+                        <a href="#" onclick="handleLogout()" class="logout">Sign out</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </nav>
+
+    <main>
+        <div class="info-page fade-in">
+            <h1>Terms of Service</h1>
+            <p>By using Direct Bridge, you agree to these terms. Please read them carefully.</p>
+            
+            <h2>Using Our Service</h2>
+            <ul>
+                <li>You must be at least 18 years old to make purchases.</li>
+                <li>You agree to provide accurate and complete information.</li>
+                <li>You are responsible for maintaining the confidentiality of your account.</li>
+            </ul>
+            
+            <h2>Orders & Payments</h2>
+            <ul>
+                <li>All prices are in Nigerian Naira (₦) and include VAT where applicable.</li>
+                <li>We reserve the right to cancel orders for suspected fraud or stock unavailability.</li>
+                <li>Payment must be completed before orders are processed.</li>
+            </ul>
+            
+            <h2>Intellectual Property</h2>
+            <p>All content on this website, including images, text, and logos, is the property of Direct Bridge and protected by copyright laws.</p>
+            
+            <h2>Limitation of Liability</h2>
+            <p>Direct Bridge is not liable for indirect, incidental, or consequential damages arising from the use of our service.</p>
+            
+            <h2>Changes to Terms</h2>
+            <p>We may update these terms from time to time. Continued use of the service constitutes acceptance of the new terms.</p>
+            
+            <p style="margin-top: 2rem; color: var(--ash-500); font-size: 0.875rem;">Last updated: April 2026</p>
+        </div>
+    </main>
+
+    <footer class="footer">
+        <div class="footer-inner">
+            <div class="footer-grid">
+                <div>
+                    <div class="footer-brand">Direct<span>Bridge</span></div>
+                    <p class="footer-desc">Connecting you to quality products with seamless delivery.</p>
+                </div>
+                <div class="footer-col">
+                    <h3>Shop</h3>
+                    <a href="../index.html">All Products</a>
+                    <a href="../index.html">Electronics</a>
+                    <a href="../index.html">Fashion</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Support</h3>
+                    <a href="contact.html">Contact Us</a>
+                    <a href="shipping.html">Shipping</a>
+                    <a href="returns.html">Returns</a>
+                </div>
+                <div class="footer-col">
+                    <h3>Company</h3>
+                    <a href="about.html">About Us</a>
+                    <a href="privacy.html">Privacy Policy</a>
+                    <a href="terms.html">Terms of Service</a>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Direct Bridge. All rights reserved.</p>
+            </div>
+        </div>
+    </footer>
+
+    <div id="toast" class="toast">
+        <i class="fas fa-check-circle"></i>
+        <span id="toast-message">Success</span>
+    </div>
+
+    <script src="../js/main.js"></script>
+</body>
+</html>
+
