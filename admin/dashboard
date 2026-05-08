@@ -1,6 +1,4 @@
-
-# Admin Dashboard - Order Management
-admin_html = """<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -261,9 +259,3 @@ admin_html = """<!DOCTYPE html>
     </script>
 </body>
 </html>
-"""
-
-with open("/mnt/agents/output/direct-bridge/admin/dashboard.html", "w") as f:
-    f.write(admin_html)
-
-print("✓ admin/dashboard.html created")
