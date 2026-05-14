@@ -236,7 +236,7 @@ function handleCheckout(e) {
     updateCartCount();
     
     // Redirect to payment page with order ID
-    window.location.href = 'pages/payment.html?order=' + newOrder.id;
+    window.location.href = 'payment.html?order=' + newOrder.id;
 }
 
 function cancelOrder(id) {
