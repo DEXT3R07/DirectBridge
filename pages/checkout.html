@@ -21,8 +21,8 @@
                     <span id="cart-count" class="cart-badge">0</span>
                 </a>
                 <div id="auth-buttons" class="auth-links">
-                    <a href="login.html" class="login-link">Log in</a>
-                    <a href="signup.html" class="btn-primary">Sign up</a>
+                    <a href="login.html?redirect=checkout.html" class="login-link">Log in</a>
+                    <a href="signup.html?redirect=checkout.html" class="btn-primary">Sign up</a>
                 </div>
                 <div id="user-menu" class="user-menu hidden">
                     <button class="user-avatar" onclick="toggleUserMenu()">
@@ -141,7 +141,9 @@
         function renderCheckout() {
             if (!state.user) {
                 showToast('Please login to checkout', 'error');
-                window.location.href = 'login.html?redirect=checkout.html';
+                setTimeout(() => {
+                    window.location.href = 'login.html?redirect=checkout.html';
+                }, 1500);
                 return;
             }
             if (state.cart.length === 0) {
