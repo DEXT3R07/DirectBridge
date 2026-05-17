@@ -55,15 +55,15 @@
                 <div class="stats-grid" style="margin-bottom: 2rem;">
                     <div class="stat-card">
                         <div class="stat-label">Total Orders</div>
-                        <div class="stat-value">${state.orders.length}</div>
+                        <div class="stat-value" id="stat-total">0</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Pending</div>
-                        <div class="stat-value" style="color: var(--warning);">${state.orders.filter(o => o.status === 'Pending').length}</div>
+                        <div class="stat-value" style="color: var(--warning);" id="stat-pending">0</div>
                     </div>
                     <div class="stat-card">
                         <div class="stat-label">Revenue</div>
-                        <div class="stat-value">${formatPrice(state.orders.filter(o => o.status !== 'Cancelled').reduce((s, o) => s + o.total, 0))}</div>
+                        <div class="stat-value" id="stat-revenue">\u20A60</div>
                     </div>
                 </div>
                 <div class="table-container" id="orders-table"></div>
@@ -90,7 +90,7 @@
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
                         <div class="form-group">
-                            <label>Price (₦) *</label>
+                            <label>Price (\u20A6) *</label>
                             <input type="number" id="new-prod-price" required min="1">
                         </div>
                         <div class="form-group">
@@ -127,11 +127,20 @@
 
     <script src="../js/main.js"></script>
     <script>
-        // Admin guard
+        // Admin guard - redirect non-admin users
         function checkAdmin() {
-            if (!state.user || !state.user.isAdmin) {
+            if (!state.user) {
+                showToast('Please login first', 'error');
+                setTimeout(() => {
+                    window.location.href = '../pages/login.html?redirect=admin/dashboard.html';
+                }, 1500);
+                return false;
+            }
+            if (!state.user.isAdmin) {
                 showToast('Admin access required', 'error');
-                window.location.href = '../pages/login.html';
+                setTimeout(() => {
+                    window.location.href = '../index.html';
+                }, 1500);
                 return false;
             }
             return true;
@@ -144,6 +153,18 @@
             document.getElementById('view-products').classList.toggle('hidden', tab !== 'products');
             
             if (tab === 'products') renderAdminProducts();
+        }
+        
+        function updateStats() {
+            const total = state.orders.length;
+            const pending = state.orders.filter(o => o.status === 'Pending').length;
+            const revenue = state.orders
+                .filter(o => o.status !== 'Cancelled')
+                .reduce((s, o) => s + o.total, 0);
+            
+            document.getElementById('stat-total').textContent = total;
+            document.getElementById('stat-pending').textContent = pending;
+            document.getElementById('stat-revenue').textContent = formatPrice(revenue);
         }
         
         function renderAdminOrders() {
@@ -201,6 +222,7 @@
                     </tbody>
                 </table>
                 `;
+            updateStats();
         }
         
         function renderAdminProducts() {
