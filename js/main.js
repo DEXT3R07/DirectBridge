@@ -1,4 +1,3 @@
-
 // --- State Management ---
 const DB = {
     get: (key, fallback) => {
@@ -50,9 +49,28 @@ function saveState() {
     else DB.remove('user');
 }
 
+// --- URL Parameter Helpers ---
+function getUrlParam(name) {
+    const params = new URLSearchParams(window.location.search);
+    return params.get(name);
+}
+
+function getRedirectUrl() {
+    const redirect = getUrlParam('redirect');
+    if (redirect) {
+        // Handle relative paths from pages/ folder
+        if (redirect.startsWith('pages/') || redirect.startsWith('admin/')) {
+            return '../' + redirect;
+        }
+        return redirect;
+    }
+    return '../index.html';
+}
+
 // --- UI Helpers ---
 function showToast(message, type = 'success') {
     const toast = document.getElementById('toast');
+    if (!toast) return;
     const msgEl = document.getElementById('toast-message');
     const icon = toast.querySelector('i');
     
@@ -71,19 +89,25 @@ function showToast(message, type = 'success') {
 function updateCartCount() {
     const count = state.cart.reduce((sum, item) => sum + item.qty, 0);
     const badge = document.getElementById('cart-count');
-    badge.textContent = count;
-    badge.classList.toggle('visible', count > 0);
+    if (badge) {
+        badge.textContent = count;
+        badge.classList.toggle('visible', count > 0);
+    }
 }
 
 function updateAuthUI() {
     const authBtns = document.getElementById('auth-buttons');
     const userMenu = document.getElementById('user-menu');
     
+    if (!authBtns || !userMenu) return;
+    
     if (state.user) {
         authBtns.classList.add('hidden');
         userMenu.classList.remove('hidden');
-        document.getElementById('user-name-display').textContent = state.user.name;
-        document.getElementById('user-email-display').textContent = state.user.email;
+        const nameDisplay = document.getElementById('user-name-display');
+        const emailDisplay = document.getElementById('user-email-display');
+        if (nameDisplay) nameDisplay.textContent = state.user.name;
+        if (emailDisplay) emailDisplay.textContent = state.user.email;
     } else {
         authBtns.classList.remove('hidden');
         userMenu.classList.add('hidden');
@@ -91,7 +115,8 @@ function updateAuthUI() {
 }
 
 function toggleUserMenu() {
-    document.getElementById('user-dropdown').classList.toggle('show');
+    const dropdown = document.getElementById('user-dropdown');
+    if (dropdown) dropdown.classList.toggle('show');
 }
 
 function getStatusColor(status) {
@@ -106,7 +131,7 @@ function getStatusColor(status) {
 }
 
 function formatPrice(price) {
-    return '₦' + price.toLocaleString('en-NG');
+    return '\u20A6' + price.toLocaleString('en-NG');
 }
 
 // --- Cart Operations ---
@@ -135,7 +160,7 @@ function updateCartQty(id, change) {
         removeFromCart(id);
     } else {
         saveState();
-        renderCart();
+        if (typeof renderCart === 'function') renderCart();
         updateCartCount();
     }
 }
@@ -143,7 +168,7 @@ function updateCartQty(id, change) {
 function removeFromCart(id) {
     state.cart = state.cart.filter(item => item.id !== id);
     saveState();
-    renderCart();
+    if (typeof renderCart === 'function') renderCart();
     updateCartCount();
 }
 
@@ -171,15 +196,30 @@ function handleLogin(e) {
     updateAuthUI();
     showToast('Welcome back!');
     
-    if (isAdmin) {
-        window.location.href = 'admin/dashboard.html';
-    } else {
-        window.location.href = 'index.html';
-    }
+    // Redirect logic
+    setTimeout(() => {
+        if (isAdmin) {
+            window.location.href = '../admin/dashboard.html';
+        } else {
+            window.location.href = getRedirectUrl();
+        }
+    }, 800);
 }
 
 function handleSignup(e) {
     e.preventDefault();
+    const pass = document.getElementById('signup-password').value;
+    const confirm = document.getElementById('signup-confirm').value;
+    
+    if (pass !== confirm) {
+        showToast('Passwords do not match', 'error');
+        return;
+    }
+    if (pass.length < 4) {
+        showToast('Password must be at least 4 characters', 'error');
+        return;
+    }
+    
     const name = document.getElementById('signup-name').value;
     const email = document.getElementById('signup-email').value;
     const phone = document.getElementById('signup-phone').value;
@@ -188,7 +228,11 @@ function handleSignup(e) {
     saveState();
     updateAuthUI();
     showToast('Account created!');
-    window.location.href = 'index.html';
+    
+    // Redirect after signup
+    setTimeout(() => {
+        window.location.href = getRedirectUrl();
+    }, 800);
 }
 
 function handleLogout() {
@@ -197,7 +241,7 @@ function handleLogout() {
     saveState();
     updateAuthUI();
     updateCartCount();
-    window.location.href = 'index.html';
+    window.location.href = '../index.html';
 }
 
 // --- Order Operations ---
@@ -205,7 +249,11 @@ function handleCheckout(e) {
     e.preventDefault();
     if (!state.user) {
         showToast('Please login to checkout', 'error');
-        window.location.href = 'pages/login.html';
+        window.location.href = 'login.html?redirect=checkout.html';
+        return;
+    }
+    if (state.cart.length === 0) {
+        window.location.href = 'cart.html';
         return;
     }
     
@@ -245,7 +293,7 @@ function cancelOrder(id) {
         order.status = 'Cancelled';
         saveState();
         showToast('Order cancelled');
-        renderDashboard();
+        if (typeof renderDashboard === 'function') renderDashboard();
     }
 }
 
@@ -254,12 +302,11 @@ function payWithPaystack(orderId) {
     const order = state.orders.find(o => o.id === orderId);
     if (!order) return;
     
-    // Use Paystack V2 Inline JS
     const popup = new PaystackPop();
     popup.newTransaction({
-        key: 'pk_test_your_public_key_here', // REPLACE WITH YOUR ACTUAL PAYSTACK PUBLIC KEY
+        key: 'pk_test_your_public_key_here',
         email: order.userEmail || state.user.email,
-        amount: order.total * 100, // Paystack amount is in kobo
+        amount: order.total * 100,
         currency: 'NGN',
         reference: 'DB-' + order.id + '-' + Date.now(),
         metadata: {
@@ -290,12 +337,19 @@ function payWithPaystack(orderId) {
 // --- Search & Filter ---
 function filterByCategory(cat) {
     state.currentCategory = cat;
-    // Re-render if on home page
     if (typeof renderHome === 'function') renderHome();
 }
 
 function handleSearch(e) {
     state.searchQuery = e.target.value;
+    if (typeof renderHome === 'function') renderHome();
+}
+
+function clearFilters() {
+    state.currentCategory = 'All';
+    state.searchQuery = '';
+    const searchInput = document.getElementById('nav-search');
+    if (searchInput) searchInput.value = '';
     if (typeof renderHome === 'function') renderHome();
 }
 
@@ -338,11 +392,13 @@ function handleAddProduct(e) {
 
 // --- Modal ---
 function showAddProductModal() {
-    document.getElementById('add-product-modal').classList.add('show');
+    const modal = document.getElementById('add-product-modal');
+    if (modal) modal.classList.add('show');
 }
 
 function closeAddProductModal() {
-    document.getElementById('add-product-modal').classList.remove('show');
+    const modal = document.getElementById('add-product-modal');
+    if (modal) modal.classList.remove('show');
 }
 
 // --- Initialize ---
@@ -355,7 +411,7 @@ document.addEventListener('DOMContentLoaded', () => {
     document.addEventListener('click', (e) => {
         const dropdown = document.getElementById('user-dropdown');
         const avatar = document.querySelector('.user-avatar');
-        if (dropdown && !dropdown.contains(e.target) && e.target !== avatar && !avatar.contains(e.target)) {
+        if (dropdown && avatar && !dropdown.contains(e.target) && e.target !== avatar && !avatar.contains(e.target)) {
             dropdown.classList.remove('show');
         }
     });
