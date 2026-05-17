@@ -46,7 +46,7 @@
                 <button type="submit" class="form-submit">Sign in</button>
             </form>
             <p class="form-footer">
-                Don't have an account? <a href="signup.html">Sign up</a>
+                Don't have an account? <a href="signup.html" id="signup-link">Sign up</a>
             </p>
             <div style="margin-top: 1.5rem; padding-top: 1.5rem; border-top: 1px solid var(--ash-200); text-align: center;">
                 <p style="font-size: 0.75rem; color: var(--ash-400);">Admin login: admin@directbridge.com / any password</p>
@@ -61,5 +61,17 @@
     </div>
 
     <script src="../js/main.js"></script>
+    <script>
+        // Preserve redirect parameter in signup link
+        document.addEventListener('DOMContentLoaded', () => {
+            const redirect = getUrlParam('redirect');
+            if (redirect) {
+                const signupLink = document.getElementById('signup-link');
+                if (signupLink) {
+                    signupLink.href = 'signup.html?redirect=' + encodeURIComponent(redirect);
+                }
+            }
+        });
+    </script>
 </body>
 </html>
