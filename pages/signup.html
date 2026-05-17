@@ -52,7 +52,7 @@
                 <button type="submit" class="form-submit">Create Account</button>
             </form>
             <p class="form-footer">
-                Already have an account? <a href="login.html">Log in</a>
+                Already have an account? <a href="login.html" id="login-link">Log in</a>
             </p>
         </div>
     </main>
@@ -65,31 +65,16 @@
 
     <script src="../js/main.js"></script>
     <script>
-        function handleSignup(e) {
-            e.preventDefault();
-            const pass = document.getElementById('signup-password').value;
-            const confirm = document.getElementById('signup-confirm').value;
-            
-            if (pass !== confirm) {
-                showToast('Passwords do not match', 'error');
-                return;
+        // Preserve redirect parameter in login link
+        document.addEventListener('DOMContentLoaded', () => {
+            const redirect = getUrlParam('redirect');
+            if (redirect) {
+                const loginLink = document.getElementById('login-link');
+                if (loginLink) {
+                    loginLink.href = 'login.html?redirect=' + encodeURIComponent(redirect);
+                }
             }
-            if (pass.length < 4) {
-                showToast('Password must be at least 4 characters', 'error');
-                return;
-            }
-            
-            // Call main.js handleSignup
-            const name = document.getElementById('signup-name').value;
-            const email = document.getElementById('signup-email').value;
-            const phone = document.getElementById('signup-phone').value;
-            
-            state.user = { id: generateId(), name, email, phone, isAdmin: false };
-            saveState();
-            updateAuthUI();
-            showToast('Account created!');
-            window.location.href = '../index.html';
-        }
+        });
     </script>
 </body>
 </html>
